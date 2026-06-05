@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Servicios del Hogar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F2F0EA;
+      --surface: #FFFFFF;
+      --surface2: #EEEBE3;
+      --border: #D8D3C8;
+      --border-strong: #A9A298;
+      --text: #1A1714;
+      --text-muted: #6B6560;
+      --text-faint: #A09890;
+      --accent: #1E4D1A;
+      --accent-mid: #3A7D34;
+      --accent-light: #E8F3E7;
+      --danger: #8B2020;
+      --danger-light: #FAEAEA;
+      --mono: 'DM Mono', monospace;
+      --sans: 'Sora', sans-serif;
+    }
+
+    body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── NAV TABS ─────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.25rem;
+      font-family: var(--sans);
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.01em;
+    }
+
+    .tab-btn svg { width: 16px; height: 16px; opacity: 0.6; }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent-mid); }
+    .tab-btn.active svg { opacity: 1; }
+
+    .tab-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-right: auto;
+      padding: 0.75rem 0;
+    }
+
+    .tab-logo .icon {
+      width: 30px; height: 30px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .tab-logo .icon svg { width: 17px; height: 17px; fill: white; }
+    .tab-logo span { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+
+    /* ── SECTIONS ─────────────────────────────────────────── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── CONFIG SECTION ───────────────────────────────────── */
+    .config-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem;
+      display: grid;
+      gap: 1.25rem;
+    }
+
+    .cfg-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 640px) { .cfg-row { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 0.85rem 1.1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-head h2 {
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    /* Currency selector */
+    .currency-select {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .currency-select select {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 6px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Services grid */
+    .svc-table { width: 100%; }
+
+    .svc-row { display: grid; grid-template-columns: 1fr 140px 36px; border-bottom: 1px solid var(--border); }
+    .svc-row:last-child { border-bottom: none; }
+    .svc-row > * { padding: 0.6rem 0.85rem; display: flex; align-items: center; }
+
+    .svc-row input[type="text"] {
+      font-family: var(--sans); font-size: 0.85rem;
+      border: 1px solid transparent; background: transparent; color: var(--text);
+      width: 100%; padding: 3px 5px; border-radius: 5px; outline: none;
+      transition: all 0.12s;
+    }
+    .svc-row input[type="text"]:hover { border-color: var(--border); background: var(--bg); }
+    .svc-row input[type="text"]:focus { border-color: var(--accent-mid); background: var(--surface); }
+
+    .amount-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+      background: var(--bg);
+      width: 100%;
+      transition: border-color 0.12s;
+    }
+    .amount-wrap:focus-within { border-color: var(--accent-mid); background: var(--surface); }
+    .amount-sym { padding: 0 6px; font-family: var(--mono); font-size: 0.72rem; color: var(--text-faint); background: var(--border); border-right: 1px solid var(--border); user-select: none; height: 100%; display: flex; align-items: center; }
+    .amount-wrap input { font-family: var(--mono); font-size: 0.88rem; border: none; background: transparent; color: var(--text); width: 100%; padding: 0.3rem 0.5rem; outline: none; text-align: right; }
+
+    .btn-icon { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-faint); transition: all 0.12s; }
+    .btn-icon:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+    .btn-icon svg { width: 13px; height: 13px; }
+
+    .card-foot { padding: 0.65rem 0.85rem; background: var(--surface2); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+
+    .btn-add { display: flex; align-items: center; gap: 0.35rem; font-family: var(--sans); font-size: 0.78rem; font-weight: 600; color: var(--accent); background: var(--accent-light); border: 1px dashed var(--accent-mid); border-radius: 7px; padding: 0.35rem 0.75rem; cursor: pointer; transition: all 0.12s; }
+    .btn-add:hover { background: var(--accent); color: white; border-style: solid; }
+    .btn-add svg { width: 13px; height: 13px; }
+
+    .foot-total { font-family: var(--mono); font-size: 0.9rem; font-weight: 500; color: var(--accent); }
+    .foot-label { font-size: 0.72rem; color: var(--text-faint); margin-right: 0.35rem; }
+
+    /* Members */
+    .mem-row { display: grid; grid-template-columns: 36px 1fr 120px 36px; border-bottom: 1px solid var(--border); align-items: center; }
+    .mem-row:last-child { border-bottom: none; }
+    .mem-row > * { padding: 0.55rem 0.6rem; display: flex; align-items: center; }
+
+    .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-light); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; color: var(--accent); flex-shrink: 0; text-transform: uppercase; }
+
+    .mem-row input[type="text"] { font-family: var(--sans); font-size: 0.85rem; border: 1px solid transparent; background: transparent; color: var(--text); width: 100%; padding: 3px 5px; border-radius: 5px; outline: none; transition: all 0.12s; }
+    .mem-row input[type="text"]:hover { border-color: var(--border); background: var(--bg); }
+    .mem-row input[type="text"]:focus { border-color: var(--accent-mid); background: var(--surface); }
+
+    .factor-ctrl { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; background: var(--bg); }
+    .factor-ctrl button { width: 26px; height: 26px; border: none; background: transparent; cursor: pointer; font-size: 1rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
+    .factor-ctrl button:hover { background: var(--border); }
+    .factor-ctrl span { font-family: var(--mono); font-size: 0.85rem; font-weight: 500; min-width: 26px; text-align: center; color: var(--text); }
+
+    /* ── DASHBOARD SECTION ────────────────────────────────── */
+    .dash-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem 3rem;
+    }
+
+    /* Receipt card — the screenshot target */
+    .receipt {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    }
+
+    .receipt-header {
+      background: var(--accent);
+      padding: 1.5rem 1.75rem 1.25rem;
+      color: white;
+    }
+
+    .rh-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+
+    .rh-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.7; margin-bottom: 0.2rem; }
+    .rh-month { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+    .rh-year { font-size: 1rem; font-weight: 300; opacity: 0.8; margin-top: 0.15rem; }
+
+    .rh-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      padding: 0.35rem 0.75rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .rh-totals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .rht-item { background: rgba(255,255,255,0.1); border-radius: 9px; padding: 0.6rem 0.75rem; }
+    .rht-label { font-size: 0.62rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.2rem; }
+    .rht-value { font-family: var(--mono); font-size: 0.95rem; font-weight: 500; }
+
+    /* Services breakdown */
+    .receipt-services {
+      padding: 1rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rs-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.65rem; }
+
+    .rs-items { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    .rs-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.78rem;
+    }
+
+    .rs-chip-name { color: var(--text-muted); }
+    .rs-chip-amt { font-family: var(--mono); font-weight: 500; color: var(--text); }
+
+    /* Per-head line */
+    .receipt-perhead {
+      padding: 0.75rem 1.75rem;
+      background: var(--accent-light);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rph-label { font-size: 0.8rem; color: var(--accent); font-weight: 500; }
+    .rph-value { font-family: var(--mono); font-size: 1rem; font-weight: 600; color: var(--accent); }
+
+    /* Members distribution */
+    .receipt-members { padding: 1rem 1.75rem 1.25rem; }
+
+    .rm-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+    .rm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.6rem;
+    }
+
+    .rm-card {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 0.75rem 0.9rem;
+      position: relative;
+      background: var(--bg);
+    }
+
+    .rm-name { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 2rem; }
+    .rm-amount { font-family: var(--mono); font-size: 1.15rem; font-weight: 500; color: var(--text); }
+    .rm-detail { font-size: 0.68rem; color: var(--text-faint); margin-top: 0.1rem; }
+
+    .rm-factor-badge {
+      position: absolute;
+      top: 0.55rem; right: 0.55rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      padding: 1px 5px;
+      color: var(--text-faint);
+    }
+
+    /* Receipt footer */
+    .receipt-footer {
+      padding: 0.75rem 1.75rem;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rf-note { font-size: 0.7rem; color: var(--text-faint); }
+    .rf-icon { display: flex; align-items: center; gap: 0.3rem; font-size: 0.7rem; color: var(--text-faint); }
+    .rf-icon svg { width: 13px; height: 13px; opacity: 0.5; }
+
+    .dash-hint {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-faint);
+      justify-content: center;
+    }
+
+    .dash-hint svg { width: 14px; height: 14px; opacity: 0.5; }
+
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-faint); font-size: 0.85rem; }
+
+    @media (max-width: 480px) {
+      .rh-totals { grid-template-columns: 1fr 1fr; }
+      .rm-grid { grid-template-columns: 1fr 1fr; }
+      .receipt-header { padding: 1.25rem; }
+      .receipt-services, .receipt-perhead, .receipt-members, .receipt-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .rh-month { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TABS ─────────────────────────────────────────────── -->
+<nav class="tabs">
+  <div class="tab-logo">
+    <div class="icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+    <span>Servicios del Hogar</span>
+  </div>
+  <button class="tab-btn active" onclick="showTab('config')" id="tab-config">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    Configuración
+  </button>
+  <button class="tab-btn" onclick="showTab('dashboard')" id="tab-dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Resumen
+  </button>
+</nav>
+
+<!-- ── CONFIG SECTION ───────────────────────────────────── -->
+<div class="section active" id="section-config">
+  <div class="config-wrap">
+
+    <!-- Currency row -->
+    <div style="display:flex; align-items:center; justify-content:flex-end; gap:0.6rem;">
+      <span style="font-size:0.78rem; color:var(--text-muted);">Moneda:</span>
+      <select id="currency-selector" onchange="setCurrency(this.value)" style="font-family:var(--mono);font-size:0.8rem;border:1px solid var(--border);border-radius:7px;padding:4px 10px;background:var(--surface);color:var(--text);cursor:pointer;outline:none;">
+        <option value="COP">🇨🇴 COP – Peso colombiano</option>
+        <option value="USD">🇺🇸 USD – Dólar</option>
+        <option value="EUR">🇪🇺 EUR – Euro</option>
+        <option value="MXN">🇲🇽 MXN – Peso mexicano</option>
+        <option value="PEN">🇵🇪 PEN – Sol peruano</option>
+        <option value="CLP">🇨🇱 CLP – Peso chileno</option>
+        <option value="ARS">🇦🇷 ARS – Peso argentino</option>
+        <option value="BRL">🇧🇷 BRL – Real brasileño</option>
+        <option value="GBP">🇬🇧 GBP – Libra esterlina</option>
+      </select>
+    </div>
+
+    <div class="cfg-row">
+
+      <!-- Services card -->
+      <div class="card">
+        <div class="card-head">
+          <h2>Servicios públicos</h2>
+        </div>
+        <div id="services-list"></div>
+        <div class="card-foot">
+          <button class="btn-add" onclick="addService()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar
+          </button>
+          <div>
+            <span class="foot-label">Total</span>
+            <span class="foot-total" id="cfg-total">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Members card -->
+      <div class="card">
+        <div class="card-head">
+          <h2>Personas del hogar</h2>
+          <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);">
+            <span id="cfg-heads">0</span> cabezas
+          </span>
+        </div>
+        <div id="members-list"></div>
+        <div class="card-foot">
+          <button class="btn-add" onclick="addMember()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar
+          </button>
+          <div>
+            <span class="foot-label">Por cabeza</span>
+            <span class="foot-total" id="cfg-perhead">$0</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Go to dashboard hint -->
+    <div style="text-align:center;padding-top:0.5rem;">
+      <button onclick="showTab('dashboard')" style="font-family:var(--sans);font-size:0.82rem;font-weight:600;color:var(--accent);background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:8px;padding:0.55rem 1.25rem;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='var(--accent)';this.style.color='white';" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent)';">
+        Ver resumen para compartir →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── DASHBOARD SECTION ─────────────────────────────────── -->
+<div class="section" id="section-dashboard">
+  <div class="dash-wrap">
+
+    <div class="receipt" id="receipt-card">
+      <!-- Header -->
+      <div class="receipt-header">
+        <div class="rh-top">
+          <div>
+            <div class="rh-title">Servicios del hogar</div>
+            <div class="rh-month" id="d-month">—</div>
+            <div class="rh-year" id="d-year">—</div>
+          </div>
+          <div class="rh-badge" id="d-currency-badge">COP</div>
+        </div>
+        <div class="rh-totals">
+          <div class="rht-item">
+            <div class="rht-label">Total</div>
+            <div class="rht-value" id="d-total">$0</div>
+          </div>
+          <div class="rht-item">
+            <div class="rht-label">Cabezas</div>
+            <div class="rht-value" id="d-heads">0</div>
+          </div>
+          <div class="rht-item">
+            <div class="rht-label">Por cabeza</div>
+            <div class="rht-value" id="d-perhead">$0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services chips -->
+      <div class="receipt-services">
+        <div class="rs-title">Servicios</div>
+        <div class="rs-items" id="d-services-chips"></div>
+      </div>
+
+      <!-- Per head highlight -->
+      <div class="receipt-perhead">
+        <span class="rph-label">Valor por cabeza</span>
+        <span class="rph-value" id="d-perhead2">$0</span>
+      </div>
+
+      <!-- Members grid -->
+      <div class="receipt-members">
+        <div class="rm-title">Distribución de pagos</div>
+        <div class="rm-grid" id="d-members-grid"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="receipt-footer">
+        <span class="rf-note" id="d-footer-date">—</span>
+        <div class="rf-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Servicios del Hogar
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Toma una captura de pantalla para compartir este resumen
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ── DEFAULT DATA ──────────────────────────────────────── */
+  const DEFAULT_SERVICES = [
+    { name: 'Agua', amount: 0 },
+    { name: 'Gas',  amount: 0 },
+    { name: 'Luz',  amount: 0 },
+  ];
+
+  const ejemplo = [
+    { name: 'Persona 1', factor: 2 },
+    { name: 'Persona 2', factor: 1 },
+    { name: 'Persona 3', factor: 1 },
+    { name: 'Persona 4', factor: 1 },
+    { name: 'Persona 5', factor: 1 },
+    { name: 'Persona 6', factor: 1 },
+  ];
+  
+  const DEFAULT_MEMBERS = [
+    { name: 'Lilia', factor: 1 },
+    { name: 'Ligia', factor: 2 },
+    { name: 'Gladys', factor: 2 },
+    { name: 'Coco', factor: 1 },
+    { name: 'Pipe', factor: 1 },
+  ];
+  /* ─────────────────────────────────────────────────────── */
+
+  const CURRENCIES = {
+    COP: { symbol: '$', locale: 'es-CO', decimals: 0 },
+    USD: { symbol: '$', locale: 'en-US', decimals: 2 },
+    EUR: { symbol: '€', locale: 'de-DE', decimals: 2 },
+    MXN: { symbol: '$', locale: 'es-MX', decimals: 2 },
+    PEN: { symbol: 'S/', locale: 'es-PE', decimals: 2 },
+    CLP: { symbol: '$', locale: 'es-CL', decimals: 0 },
+    ARS: { symbol: '$', locale: 'es-AR', decimals: 2 },
+    BRL: { symbol: 'R$', locale: 'pt-BR', decimals: 2 },
+    GBP: { symbol: '£', locale: 'en-GB', decimals: 2 },
+  };
+
+  const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  let services = DEFAULT_SERVICES.map((s, i) => ({ ...s, id: i }));
+  let members  = DEFAULT_MEMBERS.map((m, i) => ({ ...m, id: i }));
+  let nextSId = services.length, nextMId = members.length;
+  let currency = 'COP';
+
+  /* ── FORMAT ──────────────────────────────────────────── */
+  function fmt(n) {
+    const c = CURRENCIES[currency];
+    const rounded = parseFloat(n.toFixed(c.decimals));
+    return c.symbol + rounded.toLocaleString(c.locale, { minimumFractionDigits: c.decimals, maximumFractionDigits: c.decimals });
+  }
+
+  // Detecta los separadores de la moneda activa
+  function getSeps() {
+    const c = CURRENCIES[currency];
+    // Formatear 1000.1 y extraer los separadores reales del locale
+    const sample = (1000.1).toLocaleString(c.locale, { minimumFractionDigits: 1 });
+    // sample puede ser "1.000,1" o "1,000.1"
+    const thousands = sample[1]; // carácter después del primer dígito
+    const decimal   = sample[5]; // carácter después de los cuatro dígitos+separador
+    return { thousands, decimal };
+  }
+
+  // Formatea un string crudo mientras el usuario escribe
+  // Devuelve { display, numeric }
+  function fmtLive(raw) {
+    const c = CURRENCIES[currency];
+    const { thousands, decimal } = getSeps();
+
+    if (c.decimals === 0) {
+      // Solo enteros — permitir solo dígitos
+      const digits = raw.replace(/\D/g, '');
+      if (!digits) return { display: '', numeric: 0 };
+      const num = parseInt(digits, 10);
+      // Aplicar separador de miles
+      const display = num.toLocaleString(c.locale, { maximumFractionDigits: 0 });
+      return { display, numeric: num };
+    } else {
+      // Con decimales — permitir dígitos + separador decimal del locale
+      // Normalizar: aceptar tanto punto como coma como separador decimal
+      let clean = raw.replace(/[^\d.,]/g, '');
+
+      // Si el usuario escribe el separador decimal nativo, lo dejamos
+      // Detectar si hay parte decimal: buscar el último '.' o ','
+      const lastDot   = clean.lastIndexOf('.');
+      const lastComma = clean.lastIndexOf(',');
+      const lastSep   = Math.max(lastDot, lastComma);
+
+      let intPart, decPart;
+      if (lastSep !== -1) {
+        intPart = clean.slice(0, lastSep).replace(/[.,]/g, '');
+        decPart = clean.slice(lastSep + 1).replace(/[.,]/g, '');
+      } else {
+        intPart = clean.replace(/[.,]/g, '');
+        decPart = null;
+      }
+
+      if (!intPart && decPart === null) return { display: '', numeric: 0 };
+
+      const intNum = intPart ? parseInt(intPart, 10) : 0;
+      // Formatear parte entera con separador de miles
+      const intFormatted = intNum.toLocaleString(c.locale, { maximumFractionDigits: 0 });
+
+      let display;
+      let numeric;
+      if (decPart !== null) {
+        // Usuario está escribiendo decimales — mostrar el separador y lo que lleva
+        const decTrunc = decPart.slice(0, c.decimals);
+        display = intFormatted + decimal + decTrunc;
+        numeric = parseFloat(intNum + '.' + (decTrunc || '0'));
+      } else {
+        display = intFormatted;
+        numeric = intNum;
+      }
+      return { display, numeric: isNaN(numeric) ? 0 : numeric };
+    }
+  }
+
+  // Handler para inputs monetarios en vivo
+  function onAmountInput(el, svcId) {
+    const pos = el.selectionStart;
+    const prevLen = el.value.length;
+
+    const { display, numeric } = fmtLive(el.value);
+    el.value = display;
+
+    // Reposicionar cursor para no saltar al final
+    const diff = display.length - prevLen;
+    const newPos = Math.max(0, pos + diff);
+    el.setSelectionRange(newPos, newPos);
+
+    // Guardar valor numérico
+    const s = services.find(x => x.id === svcId);
+    if (s) s.amount = numeric;
+    document.getElementById('cfg-total').textContent = fmt(totalSvc());
+    document.getElementById('cfg-perhead').textContent = fmt(perHead());
+  }
+
+  // Valor inicial formateado para mostrar en el input
+  function fmtInitial(num) {
+    const c = CURRENCIES[currency];
+    if (!num) return '';
+    const { decimal } = getSeps();
+    if (c.decimals === 0) {
+      return num.toLocaleString(c.locale, { maximumFractionDigits: 0 });
+    }
+    return num.toLocaleString(c.locale, { minimumFractionDigits: c.decimals, maximumFractionDigits: c.decimals });
+  }
+
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function initials(n) { return n.trim().split(/\s+/).map(w=>w[0]||'').slice(0,2).join('').toUpperCase()||'?'; }
+  function totalSvc() { return services.reduce((a,s)=>a+(parseFloat(s.amount)||0),0); }
+  function totalHeads() { return members.reduce((a,m)=>a+(parseInt(m.factor)||0),0); }
+  function perHead() { const h=totalHeads(); return h>0 ? totalSvc()/h : 0; }
+
+  /* ── TABS ────────────────────────────────────────────── */
+  function showTab(tab) {
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('section-'+tab).classList.add('active');
+    document.getElementById('tab-'+tab).classList.add('active');
+    if (tab === 'dashboard') renderDashboard();
+  }
+
+  /* ── CURRENCY ────────────────────────────────────────── */
+  function setCurrency(val) {
+    currency = val;
+    // Re-render para actualizar símbolo y re-formatear valores con nueva localización
+    renderServices();
+    renderMembers();
+  }
+
+  /* ── SERVICES ────────────────────────────────────────── */
+  function renderServices() {
+    const el = document.getElementById('services-list');
+    el.innerHTML = services.map(s => `
+      <div class="svc-row">
+        <div><input type="text" value="${esc(s.name)}" placeholder="Servicio" oninput="updSvcName(${s.id},this.value)"/></div>
+        <div>
+          <div class="amount-wrap">
+            <span class="amount-sym">${CURRENCIES[currency].symbol}</span>
+            <input type="text" inputmode="decimal" id="amt-${s.id}"
+              value="${fmtInitial(s.amount)}"
+              placeholder="0"
+              oninput="onAmountInput(this,${s.id})"
+              onfocus="this.select()"
+            />
+          </div>
+        </div>
+        <div style="justify-content:center;">
+          <button class="btn-icon" onclick="rmSvc(${s.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+    document.getElementById('cfg-total').textContent = fmt(totalSvc());
+    document.getElementById('cfg-perhead').textContent = fmt(perHead());
+  }
+
+  function updSvcName(id,v){const s=services.find(x=>x.id===id);if(s)s.name=v;}
+  function rmSvc(id){services=services.filter(x=>x.id!==id);renderServices();}
+  function addService(){
+    const newId = nextSId++;
+    services.push({id:newId,name:'Nuevo servicio',amount:0});
+    renderServices();
+    setTimeout(()=>{
+      // Focus the name input of the new row
+      const nameInputs=document.querySelectorAll('.svc-row input[type="text"]:not([inputmode])');
+      if(nameInputs.length)nameInputs[nameInputs.length-1].select();
+    },50);
+  }
+
+  /* ── MEMBERS ─────────────────────────────────────────── */
+  function renderMembers() {
+    const el = document.getElementById('members-list');
+    el.innerHTML = members.map(m => `
+      <div class="mem-row">
+        <div><div class="avatar">${initials(m.name)}</div></div>
+        <div><input type="text" value="${esc(m.name)}" placeholder="Nombre" oninput="updMemName(${m.id},this.value)"/></div>
+        <div>
+          <div class="factor-ctrl">
+            <button onclick="chgFactor(${m.id},-1)">−</button>
+            <span id="fv-${m.id}">${m.factor}</span>
+            <button onclick="chgFactor(${m.id},+1)">+</button>
+          </div>
+        </div>
+        <div style="justify-content:center;">
+          <button class="btn-icon" onclick="rmMem(${m.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+    document.getElementById('cfg-heads').textContent = totalHeads();
+    document.getElementById('cfg-perhead').textContent = fmt(perHead());
+  }
+
+  function updMemName(id,v){
+    const m=members.find(x=>x.id===id);if(m)m.name=v;
+    const rows=document.querySelectorAll('.mem-row');
+    members.forEach((mem,i)=>{if(mem.id===id&&rows[i]){const av=rows[i].querySelector('.avatar');if(av)av.textContent=initials(v);}});
+  }
+  function chgFactor(id,d){const m=members.find(x=>x.id===id);if(m){m.factor=Math.max(1,(parseInt(m.factor)||1)+d);const el=document.getElementById('fv-'+id);if(el)el.textContent=m.factor;document.getElementById('cfg-heads').textContent=totalHeads();document.getElementById('cfg-perhead').textContent=fmt(perHead());}}
+  function rmMem(id){members=members.filter(x=>x.id!==id);renderMembers();}
+  function addMember(){members.push({id:nextMId++,name:'Nueva persona',factor:1});renderMembers();setTimeout(()=>{const ins=document.querySelectorAll('.mem-row input[type="text"]');if(ins.length)ins[ins.length-1].select();},50);}
+
+  /* ── DASHBOARD ───────────────────────────────────────── */
+  function renderDashboard() {
+    const now = new Date();
+    const month = MONTHS_ES[now.getMonth()];
+    const year = now.getFullYear();
+    const ph = perHead();
+    const total = totalSvc();
+    const heads = totalHeads();
+
+    document.getElementById('d-month').textContent = month;
+    document.getElementById('d-year').textContent = year;
+    document.getElementById('d-currency-badge').textContent = currency;
+    document.getElementById('d-total').textContent = fmt(total);
+    document.getElementById('d-heads').textContent = heads;
+    document.getElementById('d-perhead').textContent = fmt(ph);
+    document.getElementById('d-perhead2').textContent = fmt(ph);
+
+    // Footer date
+    const day = now.getDate();
+    document.getElementById('d-footer-date').textContent =
+      `Generado el ${day} de ${month.toLowerCase()} de ${year}`;
+
+    // Service chips
+    const chips = document.getElementById('d-services-chips');
+    if (services.length === 0) {
+      chips.innerHTML = '<span style="font-size:0.78rem;color:var(--text-faint);">Sin servicios configurados</span>';
+    } else {
+      chips.innerHTML = services.map(s => `
+        <div class="rs-chip">
+          <span class="rs-chip-name">${esc(s.name)}</span>
+          <span class="rs-chip-amt">${fmt(parseFloat(s.amount)||0)}</span>
+        </div>`).join('');
+    }
+
+    // Members grid
+    const grid = document.getElementById('d-members-grid');
+    if (members.length === 0 || total === 0) {
+      grid.innerHTML = '<p class="empty-state">Configura servicios y personas para ver la distribución.</p>';
+      return;
+    }
+    grid.innerHTML = members.map(m => {
+      const owes = ph * (parseInt(m.factor)||0);
+      return `
+        <div class="rm-card">
+          <div class="rm-factor-badge">×${m.factor}</div>
+          <div class="rm-name">${esc(m.name)||'Sin nombre'}</div>
+          <div class="rm-amount">${fmt(owes)}</div>
+          <div class="rm-detail">${m.factor} cabeza${m.factor!==1?'s':''} · ${fmt(ph)} c/u</div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── INIT ────────────────────────────────────────────── */
+  renderServices();
+  renderMembers();
+</script>
+</body>
+</html>
