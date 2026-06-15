@@ -246,7 +246,7 @@
       color: white;
     }
 
-    .rh-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+    .rh-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 
     .rh-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.7; margin-bottom: 0.2rem; }
     .rh-month { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
@@ -262,15 +262,7 @@
       opacity: 0.9;
     }
 
-    .rh-totals {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-    }
 
-    .rht-item { background: rgba(255,255,255,0.1); border-radius: 9px; padding: 0.6rem 0.75rem; }
-    .rht-label { font-size: 0.62rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.2rem; }
-    .rht-value { font-family: var(--mono); font-size: 0.95rem; font-weight: 500; }
 
     /* Services breakdown */
     .receipt-services {
@@ -295,19 +287,6 @@
 
     .rs-chip-name { color: var(--text-muted); }
     .rs-chip-amt { font-family: var(--mono); font-weight: 500; color: var(--text); }
-
-    /* Per-head line */
-    .receipt-perhead {
-      padding: 0.55rem 1.1rem;
-      background: var(--accent-light);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .rph-label { font-size: 0.8rem; color: var(--accent); font-weight: 500; }
-    .rph-value { font-family: var(--mono); font-size: 1rem; font-weight: 600; color: var(--accent); }
 
     /* Members distribution */
     .receipt-members { padding: 0.65rem 1.1rem 0.75rem; }
@@ -380,14 +359,7 @@
       .rh-totals { grid-template-columns: 1fr 1fr; }
       .rh-month { font-size: 1.4rem; }
     }
-    .theme-btn {
-      width: 22px; height: 22px; border-radius: 50%;
-      border: 2px solid transparent; cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      outline: none; padding: 0;
-    }
-    .theme-btn:hover { transform: scale(1.15); }
-    .theme-btn.active { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent-mid); transform: scale(1.1); }
+
   </style>
 </head>
 <body>
@@ -416,13 +388,13 @@
     <div style="display:flex; align-items:center; justify-content:flex-end; gap:1rem; flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:0.4rem;">
         <span style="font-size:0.78rem;color:var(--text-muted);">Tema:</span>
-        <div id="theme-picker" style="display:flex;gap:0.3rem;">
-          <button class="theme-btn active" data-theme="" title="Hogar" onclick="setTheme('')" style="background:#3A7D34;"></button>
-          <button class="theme-btn" data-theme="trading" title="Trading" onclick="setTheme('trading')" style="background:#00C076;border-color:#003322;"></button>
-          <button class="theme-btn" data-theme="banking" title="Banca" onclick="setTheme('banking')" style="background:#1A5DC8;"></button>
-          <button class="theme-btn" data-theme="gold" title="Gold" onclick="setTheme('gold')" style="background:#D4A017;border-color:#3A2800;"></button>
-          <button class="theme-btn" data-theme="fintech" title="Fintech" onclick="setTheme('fintech')" style="background:#7A50E8;"></button>
-        </div>
+        <select id="theme-selector" onchange="setTheme(this.value)" style="font-family:var(--sans);font-size:0.8rem;border:1px solid var(--border);border-radius:7px;padding:4px 10px;background:var(--surface);color:var(--text);cursor:pointer;outline:none;">
+          <option value="">🏠 Hogar</option>
+          <option value="banking" selected>🏦 Banca</option>
+          <option value="trading">📈 Trading</option>
+          <option value="gold">🥇 Gold</option>
+          <option value="fintech">💜 Fintech</option>
+        </select>
       </div>
       <div style="display:flex;align-items:center;gap:0.4rem;">
         <span style="font-size:0.78rem; color:var(--text-muted);">Moneda:</span>
@@ -506,20 +478,10 @@
             <div class="rh-month" id="d-month">—</div>
             <div class="rh-year" id="d-year">—</div>
           </div>
-          <div class="rh-badge" id="d-currency-badge">COP</div>
-        </div>
-        <div class="rh-totals">
-          <div class="rht-item">
-            <div class="rht-label">Total</div>
-            <div class="rht-value" id="d-total">$0</div>
-          </div>
-          <div class="rht-item">
-            <div class="rht-label">Cabezas</div>
-            <div class="rht-value" id="d-heads">0</div>
-          </div>
-          <div class="rht-item">
-            <div class="rht-label">Por cabeza</div>
-            <div class="rht-value" id="d-perhead">$0</div>
+          <div style="text-align:right;">
+            <div style="font-size:0.62rem;opacity:0.65;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.2rem;" id="d-currency-badge">COP</div>
+            <div style="font-family:var(--mono);font-size:1.5rem;font-weight:700;line-height:1;" id="d-total">$0</div>
+            <div style="font-size:0.68rem;opacity:0.65;margin-top:0.2rem;" id="d-heads-label">— cabezas</div>
           </div>
         </div>
       </div>
@@ -528,12 +490,6 @@
       <div class="receipt-services">
         <div class="rs-title">Servicios</div>
         <div class="rs-items" id="d-services-chips"></div>
-      </div>
-
-      <!-- Per head highlight -->
-      <div class="receipt-perhead">
-        <span class="rph-label">Valor por cabeza</span>
-        <span class="rph-value" id="d-perhead2">$0</span>
       </div>
 
       <!-- Members grid -->
@@ -577,7 +533,7 @@
     { name: 'Persona 6', factor: 1 },
   ];
 
-    const DEFAULT_MEMBERS = [
+      const DEFAULT_MEMBERS = [
     { name: 'Lilia', factor: 1 },
     { name: 'Ligia', factor: 2 },
     { name: 'Gladys', factor: 2 },
@@ -818,9 +774,7 @@
     document.getElementById('d-year').textContent = year;
     document.getElementById('d-currency-badge').textContent = currency;
     document.getElementById('d-total').textContent = fmt(total);
-    document.getElementById('d-heads').textContent = heads;
-    document.getElementById('d-perhead').textContent = fmt(ph);
-    document.getElementById('d-perhead2').textContent = fmt(ph);
+    document.getElementById('d-heads-label').textContent = heads + ' cabeza' + (heads !== 1 ? 's' : '');
 
     // Footer date
     const day = now.getDate();
@@ -852,7 +806,7 @@
           <div class="rm-factor-badge">×${m.factor}</div>
           <div class="rm-name">${esc(m.name)||'Sin nombre'}</div>
           <div class="rm-amount">${fmt(owes)}</div>
-          <div class="rm-detail">${m.factor} cabeza${m.factor!==1?'s':''} · ${fmt(ph)} c/u</div>
+          <div class="rm-detail">${m.factor} cabeza${m.factor!==1?'s':''} × ${fmt(ph)} c/u</div>
         </div>`;
     }).join('');
   }
@@ -860,12 +814,12 @@
   /* ── THEME ──────────────────────────────────────────── */
   function setTheme(t) {
     document.documentElement.setAttribute('data-theme', t);
-    document.querySelectorAll('.theme-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.theme === t);
-    });
+    const sel = document.getElementById('theme-selector');
+    if (sel) sel.value = t;
   }
 
   /* ── INIT ────────────────────────────────────────────── */
+  setTheme('banking');
   renderServices();
   renderMembers();
 </script>
